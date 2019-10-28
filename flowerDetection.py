@@ -6,10 +6,8 @@ from matplotlib import pyplot as plt
 import tensorflow as tf
 import os
 import zipfile
-
 from skimage.transform import resize
 from sklearn.model_selection import train_test_split
-
 from tensorflow.python.keras.utils import np_utils
 from tensorflow.python.keras.models import Sequential, Model
 from tensorflow.python.keras.layers import Dense, Dropout, Flatten, Activation, BatchNormalization
@@ -164,28 +162,6 @@ print('shape of val data:', val_data.shape)
 print('shape of val labels:', val_labels.shape)
 
 WEIGHTS_PATH_NO_TOP = 'drive/My Drive/AI/My_Model/resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5'
-
-def create_model_from_ResNet50():
-
-    """
-     Use ResNet-50 (this model's code is from https://www.kaggle.com/cokastefan/keras-resnet-50)
-    """
-    model = Sequential()
-
-    model.add(ResNet50(include_top=False, pooling='avg', weights=WEIGHTS_PATH_NO_TOP))
-    model.add(Flatten())
-    model.add(BatchNormalization())
-    model.add(Dense(2048, activation='relu'))
-    model.add(BatchNormalization())
-    model.add(Dense(1024, activation='relu'))
-    model.add(BatchNormalization())
-    model.add(Dense(len(categories), activation='softmax'))
-
-    model.layers[0].trainable = False
-    
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc']) # optimizer=RMSprop(lr=0.001)
-    
-    return model
 	
 model_ResNet50 = create_model_from_ResNet50()
 model_ResNet50.summary()
@@ -250,10 +226,6 @@ end = time.time()
 duration = end - start
 print ('\n model_ResNet50 took %0.2f seconds (%0.1f minutes) to train for %d epochs'%(duration, duration/60, epochs3) )
 
-
-def return_name(label_arr):
-  idx = np.where(label_arr == 1)
-  return idx[0][0]
   
 # plt.figure(figsize=(15,15))
 # # indexs = [10, 20, 30, 40, 50, 60, ]
@@ -269,45 +241,10 @@ def return_name(label_arr):
 #--------Prediction------------
 
 # Plots for training and testing process: loss and accuracy
-
-def plot_model_history(model_name, history, epochs):
-  
-  print(model_name)
-  plt.figure(figsize=(15, 5))
-  
-  # summarize history for accuracy
-  plt.subplot(1, 2 ,1)
-  plt.plot(np.arange(0, len(history['acc'])), history['acc'], 'r')
-  plt.plot(np.arange(1, len(history['val_acc'])+1), history['val_acc'], 'g')
-  plt.xticks(np.arange(0, epochs+1, epochs/10))
-  plt.title('Training Accuracy vs. Validation Accuracy')
-  plt.xlabel('Num of Epochs')
-  plt.ylabel('Accuracy')
-  plt.legend(['train', 'validation'], loc='best')
-  
-  plt.subplot(1, 2, 2)
-  plt.plot(np.arange(1, len(history['loss'])+1), history['loss'], 'r')
-  plt.plot(np.arange(1, len(history['val_loss'])+1), history['val_loss'], 'g')
-  plt.xticks(np.arange(0, epochs+1, epochs/10))
-  plt.title('Training Loss vs. Validation Loss')
-  plt.xlabel('Num of Epochs')
-  plt.ylabel('Loss')
-  plt.legend(['train', 'validation'], loc='best')
-  
-  
-  plt.show()
-  
+ 
 plot_model_history('model_scratch', model_scratch_info.history, epochs1)
 plot_model_history('model_VGG19', model_VGG19_info.history, epochs2)
 plot_model_history('model_ResNet50', model_ResNet50_info.history, epochs3)
-
-def predict_one_image(img, model):
-  img = cv2.resize(img, (img_width, img_height), interpolation = cv2.INTER_CUBIC)
-  img = np.reshape(img, (1, img_width, img_height, 3))
-  img = img/255.
-  pred = model.predict(img)
-  class_num = np.argmax(pred)
-  return class_num, np.max(pred)
   
 # idx = 120
 # pred, probability = predict_one_image(images[4][idx], model_ResNet50)
@@ -323,13 +260,6 @@ ax.set_xticklabels([])
 plt.grid('off')
 plt.show()
 
-
-def predict_val(val_data, model):
-  val_input = np.reshape(val_data, (1, img_width, img_height, 3))
-  val_input = val_input/255.
-  pred = model.predict(val_input)
-  class_num = np.argmax(pred)
-  return class_num, np.max(pred)
   
 print("Model trained from ResNet-50")
 plt.figure(figsize=(15,15))
