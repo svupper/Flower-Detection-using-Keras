@@ -1,0 +1,9 @@
+.venv
+flowers.zip
+unzipped_folder/
+models/
+flower_photos
+__pycache__/
+logs
+*.tgz.*
+*.tgz
